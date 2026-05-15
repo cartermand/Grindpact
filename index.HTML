@@ -1,0 +1,390 @@
+
+Copy
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrindPact — Summer Accountability</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+ 
+<!-- ONBOARDING SCREEN -->
+<div id="screen-onboard" class="screen active">
+  <div class="onboard-wrap">
+    <div class="onboard-logo">
+      <span class="flame">🔥</span>
+      <h1>GrindPact</h1>
+      <p class="tagline">Summer accountability starts here</p>
+    </div>
+ 
+    <div class="onboard-card" id="step-name">
+      <h2>What's your name?</h2>
+      <input type="text" id="input-name" placeholder="Your first name..." maxlength="20" />
+      <button class="btn-primary" onclick="setName()">Continue →</button>
+    </div>
+ 
+    <div class="onboard-card hidden" id="step-link">
+      <h2>Link with your friend</h2>
+      <p class="sub">Share your code or enter theirs to sync up</p>
+ 
+      <div class="code-display">
+        <span id="myCode">———</span>
+        <button class="copy-btn" onclick="copyCode()" title="Copy code"><i class="fa fa-copy"></i></button>
+      </div>
+      <p class="code-hint">Share this code with your friend</p>
+ 
+      <div class="divider">or enter their code</div>
+ 
+      <div class="code-entry">
+        <input type="text" id="input-friend-code" placeholder="Friend's code..." maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-family:'DM Mono',monospace;text-align:center" />
+        <button class="btn-primary" onclick="linkFriend()">Link up →</button>
+      </div>
+ 
+      <button class="btn-ghost" onclick="skipLink()">Skip for now, use solo</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- MAIN APP -->
+<div id="screen-app" class="screen hidden">
+ 
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="logo-small">🔥 GrindPact</div>
+    <div class="topbar-right">
+      <span class="user-pill" id="userPill">You</span>
+      <button class="icon-btn" onclick="showNotifPanel()" id="bellBtn" title="Notifications">
+        <i class="fa fa-bell"></i>
+        <span class="notif-badge hidden" id="notifBadge">0</span>
+      </button>
+    </div>
+  </header>
+ 
+  <!-- TAB NAV -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="dashboard" onclick="switchTab(this,'dashboard')">
+      <i class="fa fa-chart-line"></i><span>Dashboard</span>
+    </button>
+    <button class="tab-btn" data-tab="workouts" onclick="switchTab(this,'workouts')">
+      <i class="fa fa-dumbbell"></i><span>Workouts</span>
+    </button>
+    <button class="tab-btn" data-tab="friend" onclick="switchTab(this,'friend')">
+      <i class="fa fa-users"></i><span>Friend</span>
+    </button>
+    <button class="tab-btn" data-tab="settings" onclick="switchTab(this,'settings')">
+      <i class="fa fa-gear"></i><span>Settings</span>
+    </button>
+  </nav>
+ 
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+ 
+    <!-- DASHBOARD TAB -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <div class="greeting" id="greeting">Good morning 👋</div>
+ 
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num green" id="stat-myWeek">0</div>
+          <div class="stat-lbl">Your week</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num orange" id="stat-myStreak">0🔥</div>
+          <div class="stat-lbl">Your streak</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num purple" id="stat-friendStreak">—</div>
+          <div class="stat-lbl">Friend streak</div>
+        </div>
+      </div>
+ 
+      <div class="section-card">
+        <div class="section-header">
+          <span>This week</span>
+          <span class="chip chip-green" id="weekStatus">Loading...</span>
+        </div>
+        <div class="week-dots" id="weekDots"></div>
+      </div>
+ 
+      <div class="section-card" id="todayCard">
+        <div class="section-header">
+          <span>Log today</span>
+          <span class="chip" id="todayChip">Not yet</span>
+        </div>
+        <div class="quick-log-row">
+          <input type="text" id="quickName" placeholder="e.g. Morning run, leg day..." />
+          <select id="quickType">
+            <option value="Cardio">Cardio</option>
+            <option value="Weights">Weights</option>
+            <option value="HIIT">HIIT</option>
+            <option value="Yoga">Yoga</option>
+            <option value="Sports">Sports</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="number" id="quickDur" placeholder="Min" min="1" max="300" style="width:70px" />
+          <button class="btn-log" onclick="quickLog()"><i class="fa fa-plus"></i> Log</button>
+        </div>
+      </div>
+ 
+      <div class="section-card" id="friendActivityCard">
+        <div class="section-header"><span>Friend's recent activity</span></div>
+        <div id="friendFeed">
+          <div class="empty-state">Link with a friend to see their workouts here</div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- WORKOUTS TAB -->
+    <div class="tab-panel hidden" id="tab-workouts">
+      <div class="section-card">
+        <div class="section-header"><span>Log a workout</span></div>
+        <div class="form-group">
+          <label>Workout name</label>
+          <input type="text" id="wName" placeholder="e.g. Upper body strength..." />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select id="wType">
+              <option>Cardio</option>
+              <option>Weights</option>
+              <option>HIIT</option>
+              <option>Yoga</option>
+              <option>Sports</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Duration (min)</label>
+            <input type="number" id="wDur" placeholder="30" min="1" max="300" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes (optional)</label>
+          <textarea id="wNotes" placeholder="How'd it go?..." rows="2"></textarea>
+        </div>
+        <button class="btn-primary full" onclick="logWorkout()">
+          <i class="fa fa-fire"></i> Log workout
+        </button>
+      </div>
+ 
+      <div class="section-card">
+        <div class="section-header">
+          <span>Your history</span>
+          <span class="chip chip-gray" id="totalCount">0 logged</span>
+        </div>
+        <div id="historyList">
+          <div class="empty-state">No workouts logged yet. Get moving! 💪</div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- FRIEND TAB -->
+    <div class="tab-panel hidden" id="tab-friend">
+ 
+      <div id="friendLinked" class="hidden">
+        <div class="friend-versus">
+          <div class="versus-col you-col">
+            <div class="versus-avatar you-av" id="yourAvatar">ME</div>
+            <div class="versus-name" id="yourNameDisplay">You</div>
+            <div class="versus-streak green" id="yourStreakBig">0🔥</div>
+            <div class="versus-week" id="yourWeekBig">0 this week</div>
+          </div>
+          <div class="versus-mid">VS</div>
+          <div class="versus-col friend-col">
+            <div class="versus-avatar friend-av" id="friendAvatar">?</div>
+            <div class="versus-name" id="friendNameDisplay">Friend</div>
+            <div class="versus-streak purple" id="friendStreakBig">0🔥</div>
+            <div class="versus-week" id="friendWeekBig">0 this week</div>
+          </div>
+        </div>
+ 
+        <div class="section-card">
+          <div class="section-header"><span>Send a vibe</span></div>
+          <div class="vibe-row">
+            <button class="vibe-btn fire" onclick="sendVibe('fire')">🔥 Nudge</button>
+            <button class="vibe-btn clap" onclick="sendVibe('clap')">👏 Hype up</button>
+            <button class="vibe-btn skull" onclick="sendVibe('skull')">💀 You slacking?</button>
+          </div>
+        </div>
+ 
+        <div class="section-card">
+          <div class="section-header"><span>Friend's workouts</span></div>
+          <div id="friendWorkoutList">
+            <div class="empty-state">No workouts from your friend yet</div>
+          </div>
+        </div>
+      </div>
+ 
+      <div id="friendUnlinked">
+        <div class="section-card link-card">
+          <h3>Link with your friend</h3>
+          <p>Share your code or enter theirs to sync workouts in real time</p>
+          <div class="code-display big">
+            <span id="myCode2">———</span>
+            <button class="copy-btn" onclick="copyCode()" title="Copy"><i class="fa fa-copy"></i></button>
+          </div>
+          <div class="divider">or enter their code</div>
+          <div class="code-entry">
+            <input type="text" id="input-friend-code2" placeholder="XXXXXX" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-family:'DM Mono',monospace;text-align:center" />
+            <button class="btn-primary" onclick="linkFriend2()">Link up →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- SETTINGS TAB -->
+    <div class="tab-panel hidden" id="tab-settings">
+      <div class="section-card">
+        <div class="section-header"><span>Notifications</span></div>
+ 
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Browser notifications</div>
+            <div class="setting-sub" id="notifStatus">Not enabled</div>
+          </div>
+          <button class="btn-sm" id="notifPermBtn" onclick="requestNotifPermission()">Enable</button>
+        </div>
+ 
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Daily workout reminder</div>
+            <div class="setting-sub">Remind me if I haven't logged by...</div>
+          </div>
+          <select id="reminderTime" onchange="saveReminderTime()" style="width:90px">
+            <option value="">Off</option>
+            <option value="18:00">6 PM</option>
+            <option value="19:00">7 PM</option>
+            <option value="20:00">8 PM</option>
+            <option value="21:00">9 PM</option>
+          </select>
+        </div>
+ 
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Friend activity alerts</div>
+            <div class="setting-sub">Notify me when friend logs a workout</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="friendAlertToggle" onchange="saveSetting('friendAlerts', this.checked)" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+ 
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Streak milestone alerts</div>
+            <div class="setting-sub">Celebrate streaks of 3, 7, 14 days</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="streakAlertToggle" onchange="saveSetting('streakAlerts', this.checked)" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+ 
+      <!-- TEST NOTIFICATIONS -->
+      <div class="section-card">
+        <div class="section-header"><span>🧪 Test notifications</span></div>
+        <p class="test-desc">Use these buttons to test each notification type without waiting for real triggers. Make sure you've enabled notifications above first.</p>
+        <div class="test-grid">
+          <button class="test-btn" onclick="testNotif('reminder')">
+            <i class="fa fa-clock"></i>
+            <span>Workout reminder</span>
+          </button>
+          <button class="test-btn" onclick="testNotif('friend')">
+            <i class="fa fa-user"></i>
+            <span>Friend logged</span>
+          </button>
+          <button class="test-btn" onclick="testNotif('streak')">
+            <i class="fa fa-fire"></i>
+            <span>Streak milestone</span>
+          </button>
+          <button class="test-btn" onclick="testNotif('nudge')">
+            <i class="fa fa-bell"></i>
+            <span>Nudge received</span>
+          </button>
+          <button class="test-btn" onclick="testNotif('congrats')">
+            <i class="fa fa-trophy"></i>
+            <span>Workout logged</span>
+          </button>
+          <button class="test-btn" onclick="testNotif('all')">
+            <i class="fa fa-bolt"></i>
+            <span>Fire all 5</span>
+          </button>
+        </div>
+        <div id="testResult" class="test-result hidden"></div>
+      </div>
+ 
+      <div class="section-card">
+        <div class="section-header"><span>Your profile</span></div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Display name</div>
+            <div class="setting-sub" id="profileNameDisplay">—</div>
+          </div>
+          <button class="btn-sm" onclick="changeName()">Edit</button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Your invite code</div>
+            <div class="setting-sub mono" id="profileCode">—</div>
+          </div>
+          <button class="btn-sm" onclick="copyCode()">Copy</button>
+        </div>
+        <button class="btn-danger full" onclick="resetApp()" style="margin-top:1rem">Reset app data</button>
+      </div>
+    </div>
+ 
+  </main>
+ 
+  <!-- NOTIFICATION PANEL (slide-in) -->
+  <div id="notifOverlay" class="overlay hidden" onclick="hideNotifPanel()"></div>
+  <div id="notifPanel" class="notif-panel hidden">
+    <div class="notif-panel-header">
+      <span>Notifications</span>
+      <button onclick="clearNotifs()">Clear all</button>
+    </div>
+    <div id="notifList">
+      <div class="empty-state">No notifications yet</div>
+    </div>
+  </div>
+ 
+</div>
+ 
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue, push, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+ 
+  // ── Firebase config ──────────────────────────────────────────────────────────
+  // Replace with YOUR Firebase project config from console.firebase.google.com
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+ 
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+ 
+  // Expose to window so app.js can call them
+  window._fb = { db, ref, set, get, onValue, push, serverTimestamp };
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+ 
+<script src="js/app.js"></script>
+</body>
+</html>
